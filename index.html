@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>合伙空间 V21</title>
+    <title>合伙空间 V22·云端版</title>
     <style>
         :root {
             --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --gray: #8E8E93; --accent: #FF2D55;
@@ -19,7 +19,7 @@
             margin: 0; padding: 0; display: flex; height: 100vh; width: 100vw; overflow: hidden;
         }
 
-        /* 主界面 */
+        /* 主界面布局 */
         .main-app { display: flex; width: 100vw; height: 100vh; padding: 20px; box-sizing: border-box; gap: 20px; transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         .space-active .main-app { transform: translateX(-40%); opacity: 0.3; }
 
@@ -30,17 +30,19 @@
         .m-item.active { background: var(--primary); color: #fff; }
 
         .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; overflow-y: auto; flex: 1; padding-bottom: 20px; scrollbar-width: none; }
-        .day { background: var(--card); aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; position: relative; }
+        .day { background: var(--card); aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; position: relative; transition: 0.3s; }
         .day.fit { background: var(--primary); color: #fff; }
-        .day.rest { opacity: 0.4; background: #D1D1D6; } /* 休息变灰 */
+        .day.rest { opacity: 0.4; background: #D1D1D6; } /* 休息变灰逻辑 */
 
-        /* 侧边栏 */
+        /* 侧边栏与同步状态 */
         .sidebar { flex: 1; background: var(--card); border-radius: 30px; display: flex; flex-direction: column; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        #syncStatus { font-size: 10px; color: var(--gray); text-align: center; margin-bottom: 10px; }
         .space-trigger { background: linear-gradient(135deg, #FF2D55, #AF52DE, #5856D6); color: white; padding: 18px; border-radius: 20px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 20px; }
+        
         .msg-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; scrollbar-width: none; }
         .msg-item { background: #F2F2F7; padding: 10px 14px; border-radius: 15px; font-size: 0.8rem; }
 
-        /* 空间层 */
+        /* 空间层与 Ins 风 Feed */
         .space-overlay { position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: #fff; z-index: 3000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
         .space-active .space-overlay { left: 0; }
         .space-header { padding: 50px 20px 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid #eee; }
@@ -51,32 +53,25 @@
         .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.7rem; font-weight: bold; }
         .avatar-cy { background: var(--avatar-cy); }
         .avatar-sg { background: var(--avatar-sg); }
-        
         .post-img { width: 100%; aspect-ratio: 1; object-fit: cover; }
         .post-actions { padding: 10px 15px; display: flex; align-items: center; gap: 15px; }
         .action-icon { font-size: 1.4rem; cursor: pointer; }
 
-        /* --- 拟真评论抽屉 --- */
-        .comment-drawer { position: fixed; bottom: -100%; left: 0; width: 100%; height: 70%; background: #fff; z-index: 6000; border-radius: 25px 25px 0 0; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); }
+        /* 滑动评论抽屉 */
+        .comment-drawer { position: fixed; bottom: -100%; left: 0; width: 100%; height: 75%; background: #fff; z-index: 6000; border-radius: 25px 25px 0 0; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); }
         .comment-drawer.active { bottom: 0; }
         .drawer-header { padding: 15px; text-align: center; border-bottom: 1px solid #f0f0f0; font-weight: 800; position: relative; }
         .drawer-close { position: absolute; right: 20px; top: 15px; color: var(--gray); font-size: 0.9rem; }
         .drawer-list { flex: 1; overflow-y: auto; padding: 15px; }
         .drawer-input-area { padding: 15px 15px 40px; border-top: 1px solid #f0f0f0; background: #fff; }
         .emoji-bar { display: flex; gap: 12px; margin-bottom: 10px; font-size: 1.4rem; overflow-x: auto; }
-        .emoji-bar span { cursor: pointer; }
 
-        /* 弹窗与输入 */
+        /* 模态框 */
         .modal { position: fixed; inset: 0; display: none; justify-content: center; align-items: center; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); z-index: 5000; }
         .modal-content { background: #fff; padding: 25px; border-radius: 30px; width: 85%; max-width: 320px; }
-        
-        .input-group { position: relative; width: 100%; margin-bottom: 15px; }
-        .input-group input { width: 100%; padding: 15px 55px 15px 15px; border-radius: 12px; border: none; background: #F2F2F7; font-size: 1rem; box-sizing: border-box; }
-        .input-group::after { content: attr(data-unit); position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--gray); font-size: 0.8rem; font-weight: bold; }
-
         .btn-main { width: 100%; padding: 16px; border-radius: 15px; border: none; background: var(--primary); color: #fff; font-weight: 700; cursor: pointer; margin-bottom: 8px; }
         .btn-ghost { width: 100%; padding: 12px; border: none; background: none; color: var(--accent); font-weight: 600; cursor: pointer; }
-
+        
         .fab { position: absolute; bottom: 30px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), #5856D6); border-radius: 30px; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(0,122,255,0.3); z-index: 3100; }
 
         @media (max-width: 768px) { .main-app { flex-direction: column; overflow-y: auto; } .sidebar { flex: none; min-height: 350px; } }
@@ -91,6 +86,7 @@
             <div class="grid" id="grid"></div>
         </div>
         <div class="sidebar">
+            <div id="syncStatus">云端同步中...</div>
             <div class="space-trigger" onclick="toggleSpace(true)">✨ 进入合伙空间</div>
             <div class="msg-list" id="msgList"></div>
             <input type="text" id="msgIn" placeholder="写句骚话..." onkeypress="if(event.keyCode==13) sendMsg()" style="width:100%; padding:14px; border-radius:15px; border:none; background:#F2F2F7; outline:none;">
@@ -114,7 +110,7 @@
         <div class="drawer-list" id="drawerList"></div>
         <div class="drawer-input-area">
             <div class="emoji-bar">
-                <span onclick="addEmoji('🔥')">🔥</span><span onclick="addEmoji('👏')">👏</span><span onclick="addEmoji('❤️')">❤️</span><span onclick="addEmoji('💪')">💪</span><span onclick="addEmoji('😂')">😂</span><span onclick="addEmoji('🙌')">🙌</span>
+                <span onclick="addEmoji('🔥')">🔥</span><span onclick="addEmoji('👏')">👏</span><span onclick="addEmoji('❤️')">❤️</span><span onclick="addEmoji('💪')">💪</span><span onclick="addEmoji('😂')">😂</span>
             </div>
             <div style="display:flex; gap:10px;">
                 <input type="text" id="drawerIn" placeholder="添加评论..." style="flex:1; padding:12px; border-radius:12px; border:none; background:#F2F2F7; outline:none;">
@@ -127,15 +123,19 @@
         <div class="modal-content">
             <h3 id="fitDateTitle" style="margin-top:0;">打卡记录</h3>
             <select id="fitMode" onchange="toggleFitDetail()" style="width:100%; padding:14px; border-radius:12px; border:none; background:#F2F2F7; margin-bottom:15px;">
-                <option value="fit">🔥 训练模式</option><option value="rest">☕ 休息模式</option>
+                <option value="fit">🔥 训练模式</option>
+                <option value="rest">☕ 休息模式</option>
             </select>
             <div id="fitDetail">
                 <select id="fitType" style="width:100%; padding:14px; border-radius:12px; border:none; background:#F2F2F7; margin-bottom:15px;">
                     <option value="9.5">🏃 强力跑步</option><option value="12">🏋️ 力量训练</option>
                 </select>
-                <div class="input-group" data-unit="分钟"><input type="number" id="fitMin" value="45"></div>
+                <div style="background:#F2F2F7; padding:12px; border-radius:12px; display:flex; align-items:center; margin-bottom:15px;">
+                    <input type="number" id="fitMin" value="45" style="border:none; background:none; width:60px; font-size:1rem; font-weight:bold;"> 
+                    <span style="color:var(--gray); font-size:0.8rem;">分钟</span>
+                </div>
             </div>
-            <button class="btn-main" onclick="saveFit()">保存记录</button>
+            <button class="btn-main" onclick="saveFit()">保存并同步</button>
             <button class="btn-ghost" id="btnUndo" onclick="undoFit()" style="display:none;">撤回打卡数据</button>
             <button onclick="closeModals()" style="width:100%; border:none; background:none; color:var(--gray); margin-top:5px;">取消</button>
         </div>
@@ -149,35 +149,63 @@
             </select>
             <input type="file" id="postFile" accept="image/*" style="margin-bottom:15px; font-size:0.8rem;">
             <textarea id="postText" placeholder="这一刻的心情..." style="width:100%; height:80px; border-radius:12px; border:none; background:#f2f2f7; padding:12px; margin-bottom:15px; outline:none; box-sizing:border-box;"></textarea>
-            <button class="btn-main" id="pubBtn" onclick="handlePublish()">立即发布</button>
+            <button class="btn-main" id="pubBtn" onclick="handlePublish()">发布并同步</button>
             <button onclick="closeModals()" style="width:100%; border:none; background:none; color:var(--gray); margin-top:5px;">取消</button>
         </div>
     </div>
 
     <script>
-        const storageKey = 'fit_v21_final';
+        // 【云端配置：已填入你的暗号】
+        const KV_URL = "https://pleasing-hare-88101.upstash.io";
+        const KV_TOKEN = "gQAAAAAAAVglAAIncDJiZmEzMjk5YWZkZTY0YTBlYTBlOWU0YWI0NmJiMzUwNHAyODgxMDE";
+
         const nicks = ["酷炫小猪", "健身小狗", "举铁袋鼠", "早起海豹", "干饭熊猫", "跑步飞鸟"];
-        let db = JSON.parse(localStorage.getItem(storageKey)) || { calendar: Array.from({length:12}, () => ({})), messages: [], posts: [] };
+        let db = { calendar: Array.from({length:12}, () => ({})), messages: [], posts: [] };
         let curM = new Date().getMonth(), curD = 1, activePostId = null;
 
-        function save() { localStorage.setItem(storageKey, JSON.stringify(db)); }
+        // --- 云端同步逻辑 ---
+        async function loadFromCloud() {
+            try {
+                const res = await fetch(`${KV_URL}/get/app_data`, { headers: { Authorization: `Bearer ${KV_TOKEN}` } });
+                const result = await res.json();
+                if (result.result) {
+                    db = JSON.parse(result.result);
+                    updateUI();
+                    if(document.body.classList.contains('space-active')) renderFeed();
+                    document.getElementById('syncStatus').innerText = "✅ 云端已同步";
+                }
+            } catch (e) { document.getElementById('syncStatus').innerText = "⚠️ 同步失败"; }
+        }
+
+        async function save() {
+            document.getElementById('syncStatus').innerText = "⏳ 正在上传...";
+            localStorage.setItem('fit_backup', JSON.stringify(db));
+            try {
+                await fetch(`${KV_URL}/set/app_data`, {
+                    method: 'POST', headers: { Authorization: `Bearer ${KV_TOKEN}` },
+                    body: JSON.stringify(JSON.stringify(db))
+                });
+                document.getElementById('syncStatus').innerText = "✅ 云端已保存";
+            } catch (e) { alert("上传失败，请检查网络"); }
+        }
+
+        // --- 核心交互逻辑 ---
         function toggleSpace(a) { document.body.classList.toggle('space-active', a); if(a) renderFeed(); }
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
         function toggleFitDetail() { document.getElementById('fitDetail').style.display = document.getElementById('fitMode').value === 'rest' ? 'none' : 'block'; }
-
-        // --- 评论功能 ---
+        
         function openComments(id) {
             activePostId = id;
             const post = db.posts.find(p => p.id === id);
-            document.getElementById('drawerList').innerHTML = (post.comments || []).map(c => `<div style="margin-bottom:10px; font-size:0.9rem;"><b>${c.user}:</b> ${c.txt}</div>`).join('');
+            document.getElementById('drawerList').innerHTML = (post.comments || []).map(c => `<div style="margin-bottom:12px; font-size:0.9rem; line-height:1.4;"><b>${c.user}:</b> ${c.txt}</div>`).join('');
             document.getElementById('commentDrawer').classList.add('active');
         }
         function closeDrawer() { document.getElementById('commentDrawer').classList.remove('active'); }
         function addEmoji(e) { document.getElementById('drawerIn').value += e; }
+        
         function submitComment() {
-            const txt = document.getElementById('drawerIn').value;
-            if(!txt) return;
+            const txt = document.getElementById('drawerIn').value; if(!txt) return;
             db.posts = db.posts.map(p => {
                 if(p.id === activePostId) {
                     const c = p.comments || [];
@@ -186,10 +214,9 @@
                 }
                 return p;
             });
-            save(); document.getElementById('drawerIn').value = ''; openComments(activePostId); renderFeed();
+            document.getElementById('drawerIn').value = ''; openComments(activePostId); renderFeed(); save();
         }
 
-        // --- 打卡逻辑 ---
         function initCalendar() {
             const mb = document.getElementById('monthBar'); mb.innerHTML = '';
             ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"].forEach((m, i) => {
@@ -205,7 +232,7 @@
             for(let i=1; i<=days; i++) {
                 const data = db.calendar[curM][i] || {mode:''};
                 const node = document.createElement('div'); node.className = `day ${data.mode}`;
-                node.innerHTML = `<span class="d-num">${i}</span>${data.kcal?`<span style="font-size:0.5rem; margin-top:2px;">-${Math.round(data.kcal)}</span>`:''}`;
+                node.innerHTML = `<span style="font-weight:700;">${i}</span>${data.kcal?`<span style="font-size:0.5rem; margin-top:2px;">-${Math.round(data.kcal)}</span>`:''}`;
                 node.onclick = () => { 
                     curD = i; 
                     document.getElementById('fitDateTitle').innerText = `${curM+1}月${i}日`;
@@ -221,13 +248,10 @@
             const mode = document.getElementById('fitMode').value;
             const kcal = mode === 'fit' ? (parseFloat(document.getElementById('fitType').value) * 70 * (parseInt(document.getElementById('fitMin').value)/60)) : 0;
             db.calendar[curM][curD] = { mode, kcal };
-            save(); closeModals(); updateUI();
+            closeModals(); updateUI(); save();
         }
 
-        function undoFit() {
-            delete db.calendar[curM][curD];
-            save(); closeModals(); updateUI();
-        }
+        function undoFit() { delete db.calendar[curM][curD]; closeModals(); updateUI(); save(); }
 
         function handlePublish() {
             const file = document.getElementById('postFile').files[0];
@@ -239,12 +263,12 @@
                 const img = new Image(); img.src = e.target.result;
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAXW = 800; let w = img.width, h = img.height;
+                    const MAXW = 600; let w = img.width, h = img.height;
                     if(w > MAXW) { h *= MAXW/w; w = MAXW; }
                     canvas.width = w; canvas.height = h;
                     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    db.posts.unshift({ id: Date.now(), role, img: canvas.toDataURL('image/jpeg', 0.7), text, likes: 0, comments: [], time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-                    save(); closeModals(); renderFeed();
+                    db.posts.unshift({ id: Date.now(), role, img: canvas.toDataURL('image/jpeg', 0.6), text, likes: 0, comments: [], time: new Date().toLocaleTimeString() });
+                    closeModals(); renderFeed(); save();
                 }
             }
             reader.readAsDataURL(file);
@@ -271,15 +295,15 @@
             `).join('');
         }
 
-        function like(id) { db.posts = db.posts.map(p => p.id===id?{...p, likes:p.likes+1}:p); save(); renderFeed(); }
+        function like(id) { db.posts = db.posts.map(p => p.id===id?{...p, likes:p.likes+1}:p); renderFeed(); save(); }
         function sendMsg() {
             const i = document.getElementById('msgIn'); if(!i.value) return;
             db.messages.push(`<b>${nicks[Math.floor(Math.random()*nicks.length)]}</b>: ${i.value}`);
             if(db.messages.length>20) db.messages.shift();
-            save(); i.value=''; updateUI();
+            i.value=''; updateUI(); save();
         }
 
-        initCalendar();
+        window.onload = () => { loadFromCloud(); initCalendar(); setInterval(loadFromCloud, 30000); };
     </script>
 </body>
 </html>
