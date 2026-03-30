@@ -3,42 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>合伙空间 V24.0·双引擎持久版</title>
+    <title>合伙空间 V25.0·全能版</title>
     <style>
         :root {
             --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --gray: #8E8E93; --accent: #FF2D55;
             --avatar-cy: linear-gradient(45deg,#FF2D55,#5856D6);
             --avatar-sg: linear-gradient(45deg,#FFD60A,#FF9500);
         }
-        body { background: var(--bg); color: #1c1c1e; font-family: -apple-system, sans-serif; margin: 0; height: 100vh; width: 100vw; overflow: hidden; }
+        body { background: var(--bg); color: #1c1c1e; font-family: -apple-system, sans-serif; margin: 0; height: 100vh; overflow: hidden; }
         
-        .app-container { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
-        .main-app { position: absolute; inset: 0; padding: 20px; display: flex; flex-direction: column; transition: 0.5s; z-index: 10; }
+        /* 布局控制 */
+        .app-container { position: relative; width: 100vw; height: 100vh; }
+        .main-app { position: absolute; inset: 0; padding: 20px; display: flex; flex-direction: column; transition: 0.5s; z-index: 10; box-sizing: border-box; }
         .space-active .main-app { transform: scale(0.9); opacity: 0.3; filter: blur(10px); pointer-events: none; }
 
-        /* 顶部统计 */
-        .stats-bar { background: #fff; padding: 20px; border-radius: 25px; margin-bottom: 20px; display: flex; justify-content: space-around; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .stat-item { text-align: center; }
-        .stat-item b { display: block; font-size: 1.4rem; color: var(--primary); }
-        .stat-item span { font-size: 0.7rem; color: var(--gray); font-weight: bold; }
+        /* 顶部看板 */
+        .stats-bar { background: #fff; padding: 18px; border-radius: 22px; margin-bottom: 15px; display: flex; justify-content: space-between; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .stat-item { text-align: center; flex: 1; border-right: 1px solid #f0f0f0; }
+        .stat-item:last-child { border: none; }
+        .stat-item b { display: block; font-size: 1.3rem; color: var(--primary); }
+        .stat-item span { font-size: 0.65rem; color: var(--gray); font-weight: bold; }
 
-        /* 日历格子 */
-        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; flex: 1; overflow-y: auto; padding-bottom: 80px; scrollbar-width: none; }
-        .day { background: var(--card); aspect-ratio: 1; border-radius: 18px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
-        .day b { font-size: 1.1rem; }
-        .day.fit { background: var(--primary) !important; color: #fff; }
-        .day.rest { background: #E5E5EA; color: #8E8E93; }
+        /* 日历核心渲染 */
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; flex: 1; overflow-y: auto; padding-bottom: 80px; scrollbar-width: none; }
+        .day { background: var(--card); aspect-ratio: 0.85; border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.02); position: relative; border: 1px solid rgba(0,0,0,0.02); }
+        .day b { font-size: 1rem; }
+        .day small { font-size: 0.5rem; color: var(--gray); margin-top: 2px; text-align: center; line-height: 1; }
+        .day.has-data { background: #E1F0FF; border-color: var(--primary); }
+        .day.has-data b { color: var(--primary); }
 
+        /* 空间样式 - 解决图片过大 */
         .space-overlay { position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: #fff; z-index: 1000; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
         .space-active .space-overlay { left: 0; }
         .ins-feed { flex: 1; overflow-y: auto; background: #FAFAFA; padding-bottom: 100px; }
-        .ins-post { background: #fff; margin-bottom: 10px; border-bottom: 1px solid #eee; }
+        .ins-post { background: #fff; margin-bottom: 12px; border-bottom: 1px solid #eee; overflow: hidden; }
+        .post-img-container { width: 100%; max-height: 350px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; }
+        .post-img { width: 100%; height: auto; object-fit: contain; }
 
-        .bottom-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 16px 35px; border-radius: 30px; font-weight: 800; box-shadow: 0 10px 20px rgba(255,45,85,0.3); z-index: 500; cursor: pointer; }
-        
-        .modal { position: fixed; inset: 0; display: none; justify-content: center; align-items: center; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); z-index: 5000; }
-        .modal-content { background: #fff; padding: 25px; border-radius: 30px; width: 80%; max-width: 320px; }
-        .btn-opt { width: 100%; padding: 15px; border-radius: 15px; border: none; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
+        /* 通用组件 */
+        .bottom-btn { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 14px 30px; border-radius: 30px; font-weight: 800; box-shadow: 0 10px 20px rgba(255,45,85,0.3); z-index: 500; cursor: pointer; }
+        .modal { position: fixed; inset: 0; display: none; justify-content: center; align-items: center; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 5000; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 25px; width: 85%; max-width: 340px; box-sizing: border-box; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--gray); font-weight: bold; }
+        .input-group select, .input-group input { width: 100%; padding: 12px; border-radius: 12px; border: none; background: #F2F2F7; box-sizing: border-box; outline: none; }
+        .btn-opt { width: 100%; padding: 14px; border-radius: 12px; border: none; margin-bottom: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body id="bodyRoot">
@@ -46,19 +55,20 @@
     <div class="app-container">
         <div class="main-app">
             <div class="stats-bar">
-                <div class="stat-item"><span>本月训练</span><b id="fitCount">0</b></div>
-                <div class="stat-item"><span>累计消耗</span><b id="totalKcal">0</b><span>Kcal</span></div>
+                <div class="stat-item"><span>总签到</span><b id="totalDays">0</b></div>
+                <div class="stat-item"><span>累计热量</span><b id="totalKcal">0</b><span>Kcal</span></div>
+                <div class="stat-item"><span>本月活跃</span><b id="monthActive">0</b></div>
             </div>
-            <div id="syncStatus" style="font-size:10px; color:var(--gray); text-align:center; margin-bottom:10px; font-weight:bold;">⚡ 本地引擎就绪</div>
+            <div id="syncStatus" style="font-size:10px; color:var(--gray); text-align:center; margin-bottom:8px; font-weight:bold;">📱 本地引擎已就绪</div>
             <div class="grid" id="grid"></div>
-            <div class="bottom-btn" onclick="toggleSpace(true)">✨ 进入合伙空间</div>
+            <div class="bottom-btn" onclick="toggleSpace(true)">✨ 动态空间</div>
         </div>
 
         <div class="space-overlay" id="spaceLayer">
-            <div style="padding: 60px 20px 15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee;">
+            <div style="padding: 55px 20px 15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee;">
                 <b onclick="toggleSpace(false)" style="color:var(--primary); cursor:pointer;">← 返回日历</b>
-                <b style="font-size:1.1rem;">合伙动态</b>
-                <div style="width:40px; color:var(--primary); font-size:1.5rem;" onclick="openModal('postModal')">+</div>
+                <b style="font-size:1.1rem;">合伙空间</b>
+                <div style="width:40px; color:var(--primary); font-size:1.8rem;" onclick="openModal('postModal')">+</div>
             </div>
             <div id="insFeed" class="ins-feed"></div>
         </div>
@@ -66,24 +76,39 @@
 
     <div class="modal" id="fitModal">
         <div class="modal-content">
-            <h3 id="modalTitle" style="text-align:center; margin-top:0;">打卡记录</h3>
-            <button class="btn-opt" style="background:var(--primary); color:#fff;" onclick="setDayMode('fit')">🔥 我训练了 (500kcal)</button>
-            <button class="btn-opt" style="background:#f2f2f7; color:#8E8E93;" onclick="setDayMode('rest')">☕ 休息日</button>
-            <button class="btn-opt" style="background:none; color:var(--accent);" onclick="setDayMode('')">❌ 取消记录</button>
-            <button onclick="closeModals()" style="width:100%; border:none; background:none; color:var(--gray);">取消</button>
+            <h3 id="modalTitle" style="text-align:center; margin-top:0;">运动签到</h3>
+            <div class="input-group">
+                <label>运动类型</label>
+                <select id="fitType">
+                    <option value="跑步">🏃 跑步 (10kcal/min)</option>
+                    <option value="力量">🏋️ 力量 (8kcal/min)</option>
+                    <option value="跳绳">跳绳 (15kcal/min)</option>
+                    <option value="快走">🚶 快走 (5kcal/min)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>运动时长 (分钟)</label>
+                <input type="number" id="fitDuration" placeholder="输入分钟数" value="30">
+            </div>
+            <button class="btn-opt" style="background:var(--primary); color:#fff;" onclick="saveCheckIn()">确认签到</button>
+            <button class="btn-opt" style="background:#f2f2f7; color:var(--accent);" onclick="deleteCheckIn()">删除今日</button>
+            <button onclick="closeModals()" style="width:100%; border:none; background:none; color:var(--gray); margin-top:5px;">取消</button>
         </div>
     </div>
 
     <div class="modal" id="postModal">
         <div class="modal-content">
-            <h3>发布瞬间</h3>
-            <select id="pubRole" style="width:100%; padding:12px; border-radius:12px; margin-bottom:10px; border:none; background:#f2f2f7;">
-                <option value="cy">👩‍🎨 林晨羽</option><option value="sg">🤴 大帅哥</option>
-            </select>
-            <input type="file" id="postFile" accept="image/*" style="margin-bottom:10px; width:100%;">
-            <textarea id="postText" placeholder="此刻的心情..." style="width:100%; height:80px; border-radius:12px; border:none; background:#f2f2f7; padding:10px; margin-bottom:10px; box-sizing:border-box;"></textarea>
-            <button class="btn-opt" style="background:var(--primary); color:#fff;" onclick="handlePublish()">同步发布</button>
-            <button onclick="closeModals()" style="width:100%; border:none; background:none; color:var(--gray);">取消</button>
+            <h3 style="margin-top:0;">发布瞬间</h3>
+            <div class="input-group">
+                <label>发布者</label>
+                <select id="pubRole">
+                    <option value="cy">👩‍🎨 林晨羽</option><option value="sg">🤴 大帅哥</option>
+                </select>
+            </div>
+            <input type="file" id="postFile" accept="image/*" style="margin-bottom:15px; width:100%;">
+            <textarea id="postText" placeholder="此刻的心情..." style="width:100%; height:80px; border-radius:12px; border:none; background:#f2f2f7; padding:12px; margin-bottom:15px; box-sizing:border-box; outline:none;"></textarea>
+            <button class="btn-opt" style="background:var(--primary); color:#fff;" onclick="handlePublish()">立即同步</button>
+            <button onclick="closeModals()" style="width:100%; border:none; background:none; color:var(--gray); margin-top:5px;">取消</button>
         </div>
     </div>
 
@@ -91,124 +116,140 @@
         const KV_URL = "https://pleasing-hare-88101.upstash.io";
         const KV_TOKEN = "gQAAAAAAAVglAAIncDJiZmE2Mjk5YWZkZTY0YTBmYTBlowU0YWI0NmJiMzUwNHAyODgxMDE";
         
-        let db = { calendar: Array.from({length:12}, () => ({})), messages: [], posts: [] };
-        let curDay = null;
-        let isLoadedFromCloud = false;
+        let db = { calendar: {}, posts: [] };
+        let curDayKey = null;
 
-        // --- 1. 更新界面 ---
+        const kcalRates = { "跑步": 10, "力量": 8, "跳绳": 15, "快走": 5 };
+
+        // --- 核心：界面渲染 ---
         function updateUI() {
             const grid = document.getElementById('grid');
-            if(!grid) return;
             grid.innerHTML = '';
-            const m = new Date().getMonth();
-            const days = new Date(2026, m+1, 0).getDate();
-            let fits = 0;
+            const now = new Date();
+            const m = now.getMonth();
+            const y = now.getFullYear();
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
+            
+            let totalKcal = 0; let totalDays = 0; let monthActive = 0;
 
-            for(let i=1; i<=days; i++) {
-                const mode = (db.calendar[m] && db.calendar[m][i]) ? db.calendar[m][i].mode : '';
-                if(mode === 'fit') fits++;
+            // 计算所有历史热量
+            Object.values(db.calendar).forEach(day => {
+                if(day.kcal) totalKcal += day.kcal;
+                totalDays++;
+            });
+
+            for(let i=1; i<=daysInMonth; i++) {
+                const dayKey = `${y}-${m+1}-${i}`;
+                const data = db.calendar[dayKey];
                 const node = document.createElement('div');
-                node.className = `day ${mode}`;
-                node.innerHTML = `<b>${i}</b><small>${mode==='fit'?'FIT':mode==='rest'?'REST':''}</small>`;
-                node.onclick = () => { curDay = i; openModal('fitModal'); document.getElementById('modalTitle').innerText = `${m+1}月${i}日打卡`; };
+                node.className = `day ${data ? 'has-data' : ''}`;
+                
+                if(data) monthActive++;
+
+                node.innerHTML = `
+                    <b>${i}</b>
+                    <small>${data ? data.type + '<br>' + data.kcal + 'k' : ''}</small>
+                `;
+                node.onclick = () => { curDayKey = dayKey; openModal('fitModal'); document.getElementById('modalTitle').innerText = `${m+1}月${i}日签到`; };
                 grid.appendChild(node);
             }
-            document.getElementById('fitCount').innerText = fits;
-            document.getElementById('totalKcal').innerText = fits * 500;
+
+            document.getElementById('totalDays').innerText = totalDays;
+            document.getElementById('totalKcal').innerText = totalKcal;
+            document.getElementById('monthActive').innerText = monthActive;
         }
 
         function renderFeed() {
             const feed = document.getElementById('insFeed');
-            if(!feed) return;
             feed.innerHTML = db.posts.map(p => `
                 <div class="ins-post">
-                    <div style="padding:15px; font-weight:800;">${p.role==='cy'?'林晨羽':'大帅哥'}</div>
-                    <img src="${p.img}" style="width:100%; aspect-ratio:1; object-fit:cover;">
-                    <div style="padding:15px; font-size:14px;"><b>${p.role==='cy'?'羽':'帅'}:</b> ${p.text}</div>
+                    <div style="padding:12px; font-weight:800; display:flex; align-items:center; gap:8px;">
+                        <div style="width:24px; height:24px; border-radius:50%; background:${p.role==='cy'?'var(--avatar-cy)':'var(--avatar-sg)'};"></div>
+                        ${p.role==='cy'?'林晨羽':'大帅哥'}
+                    </div>
+                    <div class="post-img-container">
+                        <img src="${p.img}" class="post-img">
+                    </div>
+                    <div style="padding:12px; font-size:14px; line-height:1.4;">
+                        <b>${p.role==='cy'?'羽':'帅'}:</b> ${p.text}
+                    </div>
                 </div>`).join('');
         }
 
-        // --- 2. 加载逻辑：本地优先，云端覆盖 ---
+        // --- 数据存取 ---
         async function load() {
-            // A. 先读本地，让日历瞬间出现
-            const localData = localStorage.getItem('fit_space_db');
-            if(localData) {
-                db = JSON.parse(localData);
-                updateUI();
-                document.getElementById('syncStatus').innerText = "📱 已加载本地缓存";
-            }
+            const local = localStorage.getItem('partner_space_v25');
+            if(local) { db = JSON.parse(local); updateUI(); }
 
-            // B. 再去云端取最新数据
             try {
                 const res = await fetch(`${KV_URL}/get/app_data`, { headers: { Authorization: `Bearer ${KV_TOKEN}` } });
                 const r = await res.json();
-                if(r && r.result) {
+                if(r?.result) {
                     let d = r.result;
-                    while(typeof d === 'string') { try { d = JSON.parse(d); } catch(e){break;} }
+                    while(typeof d === 'string') d = JSON.parse(d);
                     db = d;
-                    isLoadedFromCloud = true;
-                    localStorage.setItem('fit_space_db', JSON.stringify(db)); // 更新本地
+                    localStorage.setItem('partner_space_v25', JSON.stringify(db));
                     updateUI(); renderFeed();
                     document.getElementById('syncStatus').innerText = "☁️ 云端同步成功";
                 }
-            } catch(e) {
-                document.getElementById('syncStatus').innerText = "⚠️ 云端连接失败，使用本地模式";
-                isLoadedFromCloud = true; // 即使失败也允许保存，以本地为准
-            }
+            } catch(e) { document.getElementById('syncStatus').innerText = "⚠️ 离线模式中"; }
         }
 
-        // --- 3. 保存逻辑：双向写入 ---
         async function save() {
-            // A. 写入本地
-            localStorage.setItem('fit_space_db', JSON.stringify(db));
-            
-            // B. 异步写入云端
-            document.getElementById('syncStatus').innerText = "⏳ 正在云端备份...";
+            localStorage.setItem('partner_space_v25', JSON.stringify(db));
+            document.getElementById('syncStatus').innerText = "⏳ 备份中...";
             try {
-                const res = await fetch(`${KV_URL}/set/app_data`, {
+                await fetch(`${KV_URL}/set/app_data`, {
                     method: 'POST', headers: { Authorization: `Bearer ${KV_TOKEN}` },
                     body: JSON.stringify(db)
                 });
-                if(res.ok) document.getElementById('syncStatus').innerText = "✅ 本地与云端已同步";
-            } catch(e) {
-                document.getElementById('syncStatus').innerText = "⚠️ 备份失败，已存至本地";
-            }
+                document.getElementById('syncStatus').innerText = "✅ 已同步";
+            } catch(e) { document.getElementById('syncStatus').innerText = "⚠️ 同步失败"; }
         }
 
-        function toggleSpace(active) {
-            document.getElementById('bodyRoot').className = active ? 'space-active' : '';
-            if(active) renderFeed();
+        // --- 功能逻辑 ---
+        function saveCheckIn() {
+            const type = document.getElementById('fitType').value;
+            const dur = document.getElementById('fitDuration').value || 0;
+            const kcal = dur * (kcalRates[type] || 0);
+            
+            db.calendar[curDayKey] = { type, duration: dur, kcal: kcal };
+            closeModals(); updateUI(); save();
         }
 
-        function setDayMode(m) {
-            const mon = new Date().getMonth();
-            if(!db.calendar[mon]) db.calendar[mon] = {};
-            db.calendar[mon][curDay] = { mode: m };
+        function deleteCheckIn() {
+            delete db.calendar[curDayKey];
             closeModals(); updateUI(); save();
         }
 
         function handlePublish() {
             const file = document.getElementById('postFile').files[0];
             const text = document.getElementById('postText').value;
-            if(!file || !text) return alert('图片和文字都要有哦');
+            if(!file || !text) return alert('图片和文字都要填哦');
             
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image(); img.src = e.target.result;
                 img.onload = () => {
                     const cvs = document.createElement('canvas'); const ctx = cvs.getContext('2d');
-                    const MAX = 600; let w = img.width, h = img.height;
+                    const MAX = 800; // 限制上传图片的最大尺寸，省空间也省流量
+                    let w = img.width, h = img.height;
                     if(w > MAX) { h *= MAX/w; w = MAX; }
                     cvs.width = w; cvs.height = h;
                     ctx.drawImage(img, 0, 0, w, h);
                     db.posts.unshift({
                         id: Date.now(), role: document.getElementById('pubRole').value,
-                        img: cvs.toDataURL('image/jpeg', 0.6), text: text
+                        img: cvs.toDataURL('image/jpeg', 0.7), text: text
                     });
                     closeModals(); renderFeed(); save();
                 };
             };
             reader.readAsDataURL(file);
+        }
+
+        function toggleSpace(active) {
+            document.getElementById('bodyRoot').className = active ? 'space-active' : '';
+            if(active) renderFeed();
         }
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
