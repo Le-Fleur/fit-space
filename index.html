@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>合伙空间 V22.7·丝滑抽屉版</title>
+    <title>合伙空间 V22.8·热量燃脂版</title>
     <style>
         :root {
             --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --gray: #8E8E93; --accent: #FF2D55;
@@ -12,100 +12,97 @@
         }
         body { background: var(--bg); color: #1c1c1e; font-family: -apple-system, sans-serif; margin: 0; display: flex; height: 100vh; width: 100vw; overflow: hidden; }
         
-        /* 主布局：日历全屏化 */
+        /* 主布局 */
         .main-app { position: relative; width: 100vw; height: 100vh; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .space-active .main-app { transform: scale(0.9); opacity: 0.3; filter: blur(5px); }
 
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px; }
-        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; flex: 1; overflow-y: auto; padding-bottom: 40px; scrollbar-width: none; }
-        .day { background: var(--card); aspect-ratio: 1; border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.05); transition: 0.3s; position: relative; }
-        .day:active { transform: scale(0.9); }
-        .day.fit { background: var(--primary); color: #fff; }
-        .day b { font-size: 1.2rem; }
+        /* 热量统计栏 */
+        .stats-bar { background: #fff; padding: 20px; border-radius: 25px; margin-bottom: 20px; display: flex; justify-content: space-around; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .stat-item { text-align: center; }
+        .stat-item b { display: block; font-size: 1.4rem; color: var(--primary); }
+        .stat-item span { font-size: 0.7rem; color: var(--gray); font-weight: bold; }
 
-        /* 留言板抽屉 (小引子) */
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; flex: 1; overflow-y: auto; padding-bottom: 100px; scrollbar-width: none; }
+        .day { background: var(--card); aspect-ratio: 1; border-radius: 18px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.03); transition: 0.3s; }
+        .day.fit { background: var(--primary); color: #fff; box-shadow: 0 8px 20px rgba(0,122,255,0.3); }
+        .day b { font-size: 1.1rem; }
+        .day small { font-size: 0.6rem; margin-top: 4px; opacity: 0.8; }
+
+        /* 留言板抽屉 */
         .msg-drawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: var(--card); z-index: 2000; box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
         .msg-drawer.open { right: 0; }
-        
-        /* 抽屉手柄 (小引子图标) */
         .drawer-handle { position: absolute; left: -45px; top: 50%; transform: translateY(-50%); width: 45px; height: 100px; background: var(--card); border-radius: 20px 0 0 20px; display: flex; justify-content: center; align-items: center; box-shadow: -5px 0 15px rgba(0,0,0,0.05); cursor: pointer; color: var(--primary); font-size: 1.2rem; }
 
-        .msg-list { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; }
-        .msg-item { background: #F2F2F7; padding: 12px 16px; border-radius: 18px; font-size: 0.85rem; line-height: 1.5; }
+        .msg-list { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; }
+        .msg-item { background: #F2F2F7; padding: 12px 16px; border-radius: 15px; font-size: 0.8rem; line-height: 1.4; }
 
-        /* 空间层 */
+        /* 空间层与按钮 */
         .space-overlay { position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: #fff; z-index: 3000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
         .space-active .space-overlay { left: 0; }
-        
-        .fab { position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), #5856D6); border-radius: 30px; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 1.8rem; z-index: 1500; box-shadow: 0 10px 25px rgba(0,122,255,0.4); cursor: pointer; }
-        .space-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 15px 30px; border-radius: 30px; font-weight: 800; box-shadow: 0 10px 20px rgba(255,45,85,0.3); z-index: 1000; cursor: pointer; }
+        .space-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 16px 35px; border-radius: 30px; font-weight: 800; box-shadow: 0 10px 20px rgba(255,45,85,0.3); z-index: 1000; cursor: pointer; }
 
-        .modal { position: fixed; inset: 0; display: none; justify-content: center; align-items: center; background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); z-index: 5000; }
-        .modal-content { background: #fff; padding: 30px; border-radius: 35px; width: 85%; max-width: 340px; }
+        .modal { position: fixed; inset: 0; display: none; justify-content: center; align-items: center; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); z-index: 5000; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 30px; width: 80%; max-width: 300px; }
+        .btn-opt { width: 100%; padding: 15px; border-radius: 15px; border: none; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="main-app" id="mainApp">
-        <div class="calendar-header">
-            <h1 style="margin:0; font-size: 1.8rem; font-weight: 900;">2026 训练营 ⚡️</h1>
-            <div id="syncStatus" style="font-size: 10px; color: var(--gray); font-weight: bold;">🔄 同步中...</div>
+    <div class="main-app">
+        <div class="stats-bar">
+            <div class="stat-item"><span id="monthName">MAR</span><span>月训练</span><b id="fitCount">0</b></div>
+            <div class="stat-item"><span>累计消耗</span><b id="totalKcal">0</b><span>Kcal</span></div>
         </div>
+        <div id="syncStatus" style="font-size:10px; color:var(--gray); text-align:center; margin-bottom:10px; font-weight:bold;">🔄 正在连接...</div>
         <div class="grid" id="grid"></div>
-        <div class="space-btn" onclick="toggleSpace(true)">✨ 合伙动态</div>
+        <div class="space-btn" onclick="toggleSpace(true)">✨ 进入合伙空间</div>
     </div>
 
     <div class="msg-drawer" id="msgDrawer">
         <div class="drawer-handle" onclick="toggleDrawer()">💬</div>
-        <div style="padding: 25px 25px 10px; border-bottom: 1px solid #f0f0f0;">
-            <h3 style="margin:0;">留言板</h3>
-        </div>
+        <div style="padding:20px; border-bottom:1px solid #f0f0f0;"><h3 style="margin:0;">实时交流</h3></div>
         <div class="msg-list" id="msgList"></div>
-        <div style="padding: 20px; background: #fff; border-top: 1px solid #eee;">
-            <input type="text" id="msgIn" placeholder="留句骚话..." onkeypress="if(event.keyCode==13) sendMsg()" style="width:100%; padding:15px; border-radius:15px; border:none; background:#F2F2F7; outline:none; box-sizing:border-box;">
+        <div style="padding:20px; border-top:1px solid #eee;">
+            <input type="text" id="msgIn" placeholder="留句骚话..." onkeypress="if(event.keyCode==13) sendMsg()" style="width:100%; padding:14px; border-radius:15px; border:none; background:#F2F2F7; outline:none; box-sizing:border-box;">
         </div>
     </div>
 
-    <div class="space-overlay" id="spaceOverlay">
-        <div style="padding: 60px 25px 15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee;">
-            <b onclick="toggleSpace(false)" style="color:var(--primary); cursor:pointer;">← 返回日历</b>
-            <b style="font-size:1.2rem;">合伙空间</b>
+    <div class="modal" id="fitModal">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="margin-top:0;">打卡记录</h3>
+            <button class="btn-opt" style="background:var(--primary); color:#fff;" onclick="setDayMode('fit')">🔥 开始训练 (500kcal)</button>
+            <button class="btn-opt" style="background:#E5E5EA; color:#8E8E93;" onclick="setDayMode('rest')">☕ 休息一下</button>
+            <button class="btn-opt" style="background:none; color:var(--accent);" onclick="setDayMode('')">❌ 取消打卡</button>
+        </div>
+    </div>
+
+    <div class="space-overlay">
+        <div style="padding: 60px 20px 15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee;">
+            <b onclick="toggleSpace(false)" style="color:var(--primary);">← 返回日历</b>
+            <b style="font-size:1.1rem;">合伙动态</b>
             <div style="width:40px;"></div>
         </div>
-        <div id="insFeed" style="flex:1; overflow-y:auto; background:#FAFAFA;"></div>
-        <div class="fab" onclick="openModal('postModal')">+</div>
-    </div>
-
-    <div class="modal" id="postModal">
-        <div class="modal-content">
-            <h3 style="margin-top:0;">发布瞬间</h3>
-            <select id="pubRole" style="width:100%; padding:12px; border-radius:10px; border:none; background:#f2f2f7; margin-bottom:15px;">
-                <option value="cy">👩‍🎨 林晨羽</option><option value="sg">🤴 大帅哥</option>
-            </select>
-            <input type="file" id="postFile" accept="image/*" style="margin-bottom:15px; width:100%;">
-            <textarea id="postText" placeholder="心情..." style="width:100%; height:80px; border-radius:12px; border:none; background:#f2f2f7; padding:12px; margin-bottom:15px; outline:none; box-sizing:border-box;"></textarea>
-            <button onclick="handlePublish()" style="width:100%; padding:15px; border-radius:15px; background:var(--primary); color:#fff; border:none; font-weight:bold;">同步发布</button>
-            <button onclick="closeModals()" style="width:100%; background:none; border:none; color:var(--gray); margin-top:10px;">取消</button>
-        </div>
+        <div id="insFeed" style="flex:1; overflow-y:auto;"></div>
     </div>
 
     <script>
         const KV_URL = "https://pleasing-hare-88101.upstash.io";
         const KV_TOKEN = "gQAAAAAAAVglAAIncDJiZmE2Mjk5YWZkZTY0YTBmYTBlowU0YWI0NmJiMzUwNHAyODgxMDE";
-
+        
         let db = { calendar: Array.from({length:12}, () => ({})), messages: [], posts: [] };
+        let selectedDay = null;
 
-        async function loadFromCloud() {
+        async function load() {
             try {
                 const res = await fetch(`${KV_URL}/get/app_data`, { headers: { Authorization: `Bearer ${KV_TOKEN}` } });
-                const result = await res.json();
-                if (result?.result) {
-                    let data = result.result;
-                    while (typeof data === 'string') { try { data = JSON.parse(data); } catch(e){break;} }
-                    db = data; updateUI();
-                    document.getElementById('syncStatus').innerText = "✅ 云端已同步";
+                const r = await res.json();
+                if(r.result) {
+                    let d = r.result;
+                    while(typeof d === 'string') { try { d = JSON.parse(d); } catch(e){break;} }
+                    db = d; updateUI();
+                    document.getElementById('syncStatus').innerText = "✅ 数据同步成功";
                 }
-            } catch (e) { document.getElementById('syncStatus').innerText = "⚠️ 连接失败"; }
+            } catch(e) { document.getElementById('syncStatus').innerText = "⚠️ 离线模式"; }
         }
 
         async function save() {
@@ -115,26 +112,37 @@
                     method: 'POST', headers: { Authorization: `Bearer ${KV_TOKEN}` },
                     body: JSON.stringify(db)
                 });
-                document.getElementById('syncStatus').innerText = "✅ 云端已同步";
-            } catch (e) { document.getElementById('syncStatus').innerText = "⚠️ 同步失败"; }
+                document.getElementById('syncStatus').innerText = "✅ 同步成功";
+            } catch(e) { document.getElementById('syncStatus').innerText = "⚠️ 同步失败"; }
         }
 
         function updateUI() {
             const grid = document.getElementById('grid'); grid.innerHTML = '';
             const m = new Date().getMonth();
-            const days = new Date(2026, m + 1, 0).getDate();
+            const days = new Date(2026, m+1, 0).getDate();
+            let count = 0;
+
             for(let i=1; i<=days; i++) {
+                const mode = db.calendar[m][i]?.mode || '';
+                if(mode === 'fit') count++;
                 const node = document.createElement('div');
-                node.className = `day ${db.calendar[m][i]?.mode || ''}`;
-                node.innerHTML = `<b>${i}</b>`;
-                node.onclick = () => {
-                    db.calendar[m][i] = { mode: db.calendar[m][i]?.mode === 'fit' ? '' : 'fit' };
-                    updateUI(); save();
-                };
+                node.className = `day ${mode}`;
+                node.innerHTML = `<b>${i}</b><small>${mode==='fit'?'FIT':''}</small>`;
+                node.onclick = () => { selectedDay = i; document.getElementById('modalTitle').innerText = `${m+1}月${i}日`; document.getElementById('fitModal').style.display='flex'; };
                 grid.appendChild(node);
             }
+            
+            document.getElementById('fitCount').innerText = count;
+            document.getElementById('totalKcal').innerText = count * 500;
             document.getElementById('msgList').innerHTML = db.messages.map(m => `<div class="msg-item">${m}</div>`).join('');
             document.getElementById('msgList').scrollTop = document.getElementById('msgList').scrollHeight;
+        }
+
+        function setDayMode(mode) {
+            const m = new Date().getMonth();
+            db.calendar[m][selectedDay] = { mode: mode };
+            document.getElementById('fitModal').style.display='none';
+            updateUI(); save();
         }
 
         function sendMsg() {
@@ -146,57 +154,19 @@
             input.value = ''; updateUI(); save();
         }
 
-        function handlePublish() {
-            const file = document.getElementById('postFile').files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image(); img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const MAX = 640; let w = img.width, h = img.height;
-                    if(w > MAX) { h *= MAX/w; w = MAX; }
-                    canvas.width = w; canvas.height = h;
-                    ctx.drawImage(img, 0, 0, w, h);
-                    db.posts.unshift({
-                        id: Date.now(), role: document.getElementById('pubRole').value,
-                        img: canvas.toDataURL('image/jpeg', 0.6),
-                        text: document.getElementById('postText').value,
-                        likes: 0
-                    });
-                    closeModals(); renderFeed(); save();
-                };
-            };
-            reader.readAsDataURL(file);
-        }
-
         function renderFeed() {
             document.getElementById('insFeed').innerHTML = db.posts.map(p => `
                 <div style="background:#fff; margin-bottom:10px; border-bottom:1px solid #eee;">
-                    <div style="padding:15px; font-weight:800; display:flex; align-items:center; gap:10px;">
-                        <div style="width:30px; height:30px; border-radius:50%; background:var(--avatar-cy); color:#fff; display:flex; justify-content:center; align-items:center; font-size:10px;">${p.role==='cy'?'羽':'帅'}</div>
-                        ${p.role==='cy'?'林晨羽':'大帅哥'}
-                    </div>
+                    <div style="padding:15px; font-weight:800;">${p.role==='cy'?'林晨羽':'大帅哥'}</div>
                     <img src="${p.img}" style="width:100%; aspect-ratio:1; object-fit:cover;">
-                    <div style="padding:15px;">
-                        <div style="font-size:1.5rem; margin-bottom:10px;" onclick="handleLike(${p.id})">❤️ <small style="font-size:12px;">${p.likes||0}</small></div>
-                        <div style="font-size:14px;"><b>${p.role==='cy'?'羽':'帅'}:</b> ${p.text}</div>
-                    </div>
+                    <div style="padding:15px; font-size:14px;"><b>${p.role==='cy'?'羽':'帅'}:</b> ${p.text}</div>
                 </div>`).join('');
-        }
-
-        function handleLike(id) {
-            db.posts = db.posts.map(p => p.id === id ? {...p, likes: (p.likes || 0) + 1} : p);
-            renderFeed(); save();
         }
 
         function toggleDrawer() { document.getElementById('msgDrawer').classList.toggle('open'); }
         function toggleSpace(a) { document.body.classList.toggle('space-active', a); if(a) renderFeed(); }
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
-
-        window.onload = () => { loadFromCloud(); };
+        
+        window.onload = load;
     </script>
 </body>
 </html>
