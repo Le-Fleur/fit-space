@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>林晨羽 & 大帅哥 · 训练中心</title>
+    <style>
+        :root {
+            --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --gray: #8E8E93; --accent: #FF2D55;
+            --avatar-cy: linear-gradient(45deg,#FF2D55,#5856D6);
+            --avatar-sg: linear-gradient(45deg,#FFD60A,#FF9500);
+        }
+
+        body {
+            background-color: var(--bg); color: #1c1c1e;
+            font-family: -apple-system, "PingFang SC", sans-serif;
+            margin: 0; padding: 0; display: flex; height: 100vh; width: 100vw; overflow: hidden;
+        }
+
+        /* 主界面 */
+        .main-app {
+            display: flex; width: 100vw; height: 100vh; padding: 20px; box-sizing: border-box; gap: 20px;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .space-active .main-app { transform: translateX(-30%); opacity: 0.5; }
+
+        /* 左侧：日历与统计 */
+        .calendar-section { flex: 1.6; display: flex; flex-direction: column; min-width: 0; }
+        .month-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; }
+        .month-scroll::-webkit-scrollbar { display: none; }
+        .m-item { padding: 8px 16px; border-radius: 12px; background: #E5E5EA; color: var(--gray); font-size: 0.85rem; font-weight: 600; white-space: nowrap; cursor: pointer; }
+        .m-item.active { background: var(--primary); color: #fff; }
+
+        .stat-banner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .stat-num { font-size: 1.3rem; font-weight: 800; color: var(--primary); display: block; }
+        .stat-label { font-size: 0.65rem; color: var(--gray); margin-top: 5px; }
+
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; overflow-y: auto; flex: 1; padding-bottom: 30px; scrollbar-width: none; }
+        .grid::-webkit-scrollbar { display: none; }
+        .day { background: var(--card); aspect-ratio: 1; border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; position: relative; }
+        .day:active { transform: scale(0.9); }
+        .day.fit { background: var(--primary); color: #fff; box-shadow: 0 5px 15px rgba(0,122,255,0.3); }
+        .day.rest { opacity: 0.4; background: #D1D1D6; }
+        .d-num { font-size: 1rem; font-weight: 700; }
+        .d-kcal { font-size: 0.5rem; margin-top: 3px; font-weight: 600; }
+
+        /* 右侧：留言板 */
+        .sidebar { flex: 1; background: var(--card); border-radius: 35px; display: flex; flex-direction: column; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); }
+        .space-trigger { background: linear-gradient(135deg, #FF2D55, #AF52DE, #5856D6); color: white; padding: 20px; border-radius: 22px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(255,45,85,0.25); }
+        .msg-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; scrollbar-width: none; }
+        .msg-item { background: #F2F2F7; padding: 12px 16px; border-radius: 18px; font-size: 0.85rem; color: #3a3a3c; }
+
+        /* 空间层 */
+        .space-overlay { position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: #fff; z-index: 3000; transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        .space-active .space-overlay { left: 0; }
+        .space-header { padding: 55px 20px 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; border-bottom: 0.5px solid #eee; }
+
+        .ins-feed { flex: 1; overflow-y: auto; background: #FAFAFA; scrollbar-width: none; }
+        .ins-post { width: 100%; max-width: 500px; margin: 0 auto 30px; background: #fff; animation: slideUp 0.6s ease both; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .post-header { padding: 12px 15px; display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.75rem; font-weight: bold; }
+        .avatar-cy { background: var(--avatar-cy); }
+        .avatar-sg { background: var(--avatar-sg); }
+        
+        .post-img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+        .post-actions { padding: 12px 15px; display: flex; align-items: center; gap: 15px; }
+        .heart-icon { font-size: 1.6rem; cursor: pointer; transition: 0.2s; }
+        .heart-icon.pop { transform: scale(1.5); }
+        
+        /* 交互气泡与弹窗 */
+        .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px); background: rgba(0,0,0,0.85); color: white; padding: 12px 25px; border-radius: 30px; font-size: 0.9rem; opacity: 0; transition: 0.4s; z-index: 9999; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .modal { position: fixed; inset: 0; display: none; justify-content: center; align-items: center; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); z-index: 5000; }
+        .modal-content { background: #fff; padding: 30px; border-radius: 35px; width: 85%; max-width: 340px; }
+        
+        .role-sel { display: flex; background: #F2F2F7; padding: 4px; border-radius: 12px; margin-bottom: 15px; }
+        .role-opt { flex: 1; text-align: center; padding: 8px; border-radius: 9px; cursor: pointer; font-size: 0.8rem; }
+        .role-opt.active { background: #fff; color: var(--primary); font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+        .btn-main { width: 100%; padding: 18px; border-radius: 18px; border: none; background: var(--primary); color: #fff; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-loading::after { content: ""; width: 18px; height: 18px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .fab { position: fixed; bottom: 40px; right: 30px; width: 65px; height: 65px; background: linear-gradient(135deg, var(--primary), #5856D6); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 2rem; box-shadow: 0 10px 25px rgba(0,122,255,0.3); z-index: 4000; }
+
+        @media (max-width: 768px) { .main-app { flex-direction: column; overflow-y: auto; } .sidebar { min-height: 400px; margin-bottom: 40px; } }
+    </style>
+</head>
+<body>
+
+    <div id="toast" class="toast">✅ 操作成功</div>
+
+    <div class="main-app" id="mainApp">
+        <div class="calendar-section">
+            <div class="month-scroll" id="monthBar"></div>
+            <div style="font-weight: 900; font-size: 1.7rem; margin: 10px 0;">训练营 ⚡️</div>
+            <div class="stat-banner">
+                <div class="stat-card"><span class="stat-num" id="t-count">0</span><span class="stat-label">累计打卡</span></div>
+                <div class="stat-card"><span class="stat-num" id="m-kcal">0</span><span class="stat-label">月度消耗</span></div>
+                <div class="stat-card"><span class="stat-num" id="y-kcal">0</span><span class="stat-label">年度消耗</span></div>
+            </div>
+            <div class="grid" id="grid"></div>
+        </div>
+
+        <div class="sidebar">
+            <div class="space-trigger" onclick="toggleSpace(true)">✨ 进入合伙空间</div>
+            <div style="font-weight: 800; margin-bottom: 15px;">碎碎念</div>
+            <div class="msg-list" id="msgList"></div>
+            <input type="text" id="msgIn" placeholder="聊点什么..." onkeypress="if(event.keyCode==13) sendMsg()" style="width:100%; padding:15px; border-radius:15px; border:none; background:#F2F2F7;">
+        </div>
+    </div>
+
+    <div class="space-overlay">
+        <div class="space-header">
+            <span onclick="toggleSpace(false)" style="color:var(--primary); font-weight:700;">← 返回</span>
+            <span style="font-weight: 900;">合伙动态</span>
+            <span style="width: 40px;"></span>
+        </div>
+        <div class="ins-feed" id="insFeed"></div>
+        <div class="fab" onclick="openModal('postModal')">+</div>
+    </div>
+
+    <div class="modal" id="fitModal">
+        <div class="modal-content">
+            <h3 id="fitDateTitle" style="margin-top:0;">打卡记录</h3>
+            <select id="fitMode" style="width:100%; padding:15px; border-radius:15px; border:none; background:#F2F2F7; margin-bottom:15px;">
+                <option value="fit">🔥 训练</option>
+                <option value="rest">☕ 休息</option>
+            </select>
+            <div id="fitDetail">
+                <select id="fitType" style="width:100%; padding:15px; border-radius:15px; border:none; background:#F2F2F7; margin-bottom:15px;"><option value="9">🏃 跑步</option><option value="7.5">🧗 爬坡</option></select>
+                <input type="number" id="fitMin" value="45" style="width:100%; padding:15px; border-radius:15px; border:none; background:#F2F2F7; margin-bottom:15px;">
+            </div>
+            <button class="btn-main" onclick="saveFit()">保存</button>
+            <button onclick="closeModals()" style="width:100%; border:none; background:none; color:var(--gray); margin-top:15px;">取消</button>
+        </div>
+    </div>
+
+    <div class="modal" id="postModal">
+        <div class="modal-content">
+            <h3 style="margin-top:0;">发布动态</h3>
+            <div class="role-sel">
+                <div class="role-opt active" id="role-cy" onclick="setRole('cy')">林晨羽</div>
+                <div class="role-opt" id="role-sg" onclick="setRole('sg')">大帅哥</div>
+            </div>
+            <input type="file" id="postFile" accept="image/*" style="margin-bottom:15px;">
+            <textarea id="postText" placeholder="想说什么... (选填)" style="width:100%; height:100px; border-radius:15px; border:none; background:#F2F2F7; padding:15px; margin-bottom:15px;"></textarea>
+            <button class="btn-main" id="pubBtn" onclick="handlePublish()">立即发布</button>
+            <button onclick="closeModals()" style="width:100%; border:none; background:none; color:var(--gray); margin-top:15px;">取消</button>
+        </div>
+    </div>
+
+    <script>
+        const storageKey = 'chengyu_sg_final_v17';
+        let db = JSON.parse(localStorage.getItem(storageKey)) || { calendar: Array.from({length:12}, () => ({})), messages: [], posts: [] };
+        let curM = new Date().getMonth(), curD = 1, currentRole = 'cy';
+
+        function save() { localStorage.setItem(storageKey, JSON.stringify(db)); }
+        function showToast(t) { const el = document.getElementById('toast'); el.innerText = t; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 2000); }
+        function toggleSpace(a) { document.body.classList.toggle('space-active', a); if(a) renderFeed(); }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
+        function setRole(r) { currentRole = r; document.querySelectorAll('.role-opt').forEach(o => o.classList.toggle('active', o.id === `role-${r}`)); }
+
+        function initCalendar() {
+            const mb = document.getElementById('monthBar'); mb.innerHTML = '';
+            ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一","十二"].forEach((m, i) => {
+                const d = document.createElement('div'); d.className = `m-item ${i===curM?'active':''}`; d.innerText = m;
+                d.onclick = () => { curM = i; initCalendar(); updateUI(); }; mb.appendChild(d);
+            });
+            updateUI();
+        }
+
+        function updateUI() {
+            const grid = document.getElementById('grid'); grid.innerHTML = '';
+            const days = new Date(2026, curM + 1, 0).getDate();
+            let mK = 0, tD = 0, yK = 0;
+            db.calendar.forEach((mo, mi) => Object.values(mo).forEach(d => { if(d.mode==='fit'){ if(mi===curM)mK+=d.kcal; yK+=d.kcal; tD++; } }));
+            for(let i=1; i<=days; i++) {
+                const data = db.calendar[curM][i] || {mode:''};
+                const node = document.createElement('div'); node.className = `day ${data.mode}`;
+                node.innerHTML = `<span class="d-num">${i}</span>${data.kcal?`<span class="d-kcal">-${Math.round(data.kcal)}</span>`:''}`;
+                node.onclick = () => { curD = i; document.getElementById('fitDateTitle').innerText = `${curM+1}月${i}日`; openModal('fitModal'); };
+                grid.appendChild(node);
+            }
+            document.getElementById('t-count').innerText = tD;
+            document.getElementById('m-kcal').innerText = Math.round(mK);
+            document.getElementById('y-kcal').innerText = Math.round(yK);
+            document.getElementById('msgList').innerHTML = db.messages.map(m => `<div class="msg-item">${m}</div>`).join('');
+        }
+
+        function saveFit() {
+            const mode = document.getElementById('fitMode').value;
+            const kcal = mode === 'fit' ? (parseFloat(document.getElementById('fitType').value) * 70 * (parseInt(document.getElementById('fitMin').value)/60)) : 0;
+            db.calendar[curM][curD] = { mode, kcal };
+            save(); closeModals(); updateUI(); showToast("打卡完成 💪");
+        }
+
+        function handlePublish() {
+            const file = document.getElementById('postFile').files[0];
+            const text = document.getElementById('postText').value;
+            if(!file) return showToast("选张照片吧！");
+            const btn = document.getElementById('pubBtn'); btn.classList.add('btn-loading');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                db.posts.unshift({ id:Date.now(), role:currentRole, img:e.target.result, text:text.trim(), likes:0, time:new Date().toLocaleString([], {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}) });
+                save(); btn.classList.remove('btn-loading'); showToast("发布成功 ✨");
+                setTimeout(() => { closeModals(); renderFeed(); }, 500);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderFeed() {
+            const feed = document.getElementById('insFeed');
+            feed.innerHTML = db.posts.map(p => `
+                <div class="ins-post">
+                    <div class="post-header">
+                        <div class="avatar ${p.role==='cy'?'avatar-cy':'avatar-sg'}">${p.role==='cy'?'晨羽':'帅哥'}</div>
+                        <div style="font-weight:700;">${p.role==='cy'?'林晨羽':'大帅哥'} <span style="font-weight:400; color:#8e8e93; font-size:0.7rem;">${p.time}</span></div>
+                    </div>
+                    <img src="${p.img}" class="post-img">
+                    <div class="post-actions" onclick="like(${p.id})">
+                        <span class="heart-icon" id="h-${p.id}">${p.likes>0?'❤️':'🤍'}</span>
+                        <span style="font-size:0.9rem; font-weight:700;">${p.likes}</span>
+                    </div>
+                    ${p.text?`<div style="padding:0 15px 15px; font-size:0.9rem;"><b>${p.role==='cy'?'林晨羽':'大帅哥'}</b> ${p.text}</div>`:''}
+                </div>
+            `).join('');
+        }
+
+        function like(id) {
+            const h = document.getElementById(`h-${id}`); h.classList.add('pop'); setTimeout(()=>h.classList.remove('pop'),200);
+            db.posts = db.posts.map(p => p.id===id?{...p, likes:p.likes+1}:p); save(); renderFeed();
+        }
+
+        function sendMsg() {
+            const i = document.getElementById('msgIn'); if(!i.value) return;
+            const user = prompt("谁在说话? (晨羽/帅哥)") || "访客";
+            db.messages.push(`<b>${user}</b>: ${i.value}`); if(db.messages.length>20) db.messages.shift();
+            save(); i.value=''; updateUI();
+        }
+
+        initCalendar();
+    </script>
+</body>
+</html>
