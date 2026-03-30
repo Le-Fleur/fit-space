@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>合伙空间 V18</title>
+    <title>合伙空间 V19</title>
     <style>
         :root {
             --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --gray: #8E8E93; --accent: #FF2D55;
@@ -23,27 +23,26 @@
         .main-app { display: flex; width: 100vw; height: 100vh; padding: 20px; box-sizing: border-box; gap: 20px; transition: 0.6s; }
         .space-active .main-app { transform: translateX(-30%); opacity: 0.5; }
 
-        /* 日历部分 */
-        .calendar-section { flex: 1.6; display: flex; flex-direction: column; min-width: 0; }
+        /* 日历部分 - 确保这里没有加号 */
+        .calendar-section { flex: 1.6; display: flex; flex-direction: column; min-width: 0; position: relative; }
         .month-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
         .month-scroll::-webkit-scrollbar { display: none; }
         .m-item { padding: 8px 16px; border-radius: 12px; background: #E5E5EA; color: var(--gray); font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
         .m-item.active { background: var(--primary); color: #fff; }
 
         .stat-banner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .stat-card { background: var(--card); padding: 12px; border-radius: 18px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .stat-card { background: var(--card); padding: 12px; border-radius: 18px; text-align: center; }
         .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block; }
         .stat-label { font-size: 0.6rem; color: var(--gray); margin-top: 4px; }
 
         .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; overflow-y: auto; flex: 1; padding-bottom: 20px; scrollbar-width: none; }
-        .day { background: var(--card); aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
+        .day { background: var(--card); aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
         .day.fit { background: var(--primary); color: #fff; }
-        .day.rest { opacity: 0.4; background: #D1D1D6; }
         .d-num { font-size: 0.9rem; font-weight: 700; }
         .d-kcal { font-size: 0.5rem; margin-top: 2px; }
 
-        /* 侧边栏：修复遮挡 */
-        .sidebar { flex: 1; background: var(--card); border-radius: 30px; display: flex; flex-direction: column; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        /* 侧边栏 */
+        .sidebar { flex: 1; background: var(--card); border-radius: 30px; display: flex; flex-direction: column; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         .space-trigger { background: linear-gradient(135deg, #FF2D55, #AF52DE, #5856D6); color: white; padding: 18px; border-radius: 20px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 20px; }
         .msg-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; scrollbar-width: none; }
         .msg-item { background: #F2F2F7; padding: 10px 14px; border-radius: 15px; font-size: 0.8rem; }
@@ -62,31 +61,29 @@
         
         .post-img { width: 100%; aspect-ratio: 1; object-fit: cover; }
         .post-actions { padding: 10px 15px; display: flex; align-items: center; gap: 15px; }
-        .action-icon { font-size: 1.4rem; cursor: pointer; transition: 0.2s; }
+        .action-icon { font-size: 1.4rem; cursor: pointer; }
         
-        /* 评论区样式 */
         .comments-box { padding: 0 15px 15px; border-top: 1px solid #f9f9f9; }
-        .comment-item { font-size: 0.8rem; margin-top: 5px; line-height: 1.4; }
-        .comment-item b { color: #000; }
+        .comment-item { font-size: 0.8rem; margin-top: 5px; }
+        .comment-item b { color: var(--primary); }
 
-        /* 弹窗适配 iOS */
+        /* 弹窗 */
         .modal { position: fixed; inset: 0; display: none; justify-content: center; align-items: center; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); z-index: 5000; }
         .modal-content { background: #fff; padding: 25px; border-radius: 30px; width: 85%; max-width: 320px; }
         
-        /* 修复输入框展示单位 */
         .input-group { position: relative; width: 100%; margin-bottom: 15px; }
         .input-group input { width: 100%; padding: 15px 50px 15px 15px; border-radius: 12px; border: none; background: #F2F2F7; font-size: 1rem; box-sizing: border-box; }
-        .input-group::after { content: attr(data-unit); position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--gray); font-size: 0.8rem; font-weight: bold; pointer-events: none; }
+        .input-group::after { content: attr(data-unit); position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--gray); font-size: 0.8rem; pointer-events: none; }
 
         .btn-main { width: 100%; padding: 16px; border-radius: 15px; border: none; background: var(--primary); color: #fff; font-weight: 700; cursor: pointer; }
-        .fab { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), #5856D6); border-radius: 30px; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(0,122,255,0.3); z-index: 4000; }
+        
+        /* 加号现在只在空间层出现 */
+        .fab { position: absolute; bottom: 30px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), #5856D6); border-radius: 30px; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(0,122,255,0.3); z-index: 3100; }
 
         @media (max-width: 768px) { .main-app { flex-direction: column; overflow-y: auto; } .sidebar { flex: none; min-height: 350px; } }
     </style>
 </head>
 <body>
-
-    <div id="toast" class="toast" style="position:fixed; top:60px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); color:#fff; padding:10px 20px; border-radius:20px; opacity:0; z-index:9999; pointer-events:none; transition:0.3s;">✅ 成功</div>
 
     <div class="main-app" id="mainApp">
         <div class="calendar-section">
@@ -104,7 +101,7 @@
             <div class="space-trigger" onclick="toggleSpace(true)">✨ 进入合伙空间</div>
             <div style="font-weight: 800; margin-bottom: 10px; font-size: 0.9rem;">碎碎念</div>
             <div class="msg-list" id="msgList"></div>
-            <input type="text" id="msgIn" placeholder="回句鼓励的话..." onkeypress="if(event.keyCode==13) sendMsg()" style="width:100%; padding:12px; border-radius:12px; border:none; background:#F2F2F7; font-size:0.85rem;">
+            <input type="text" id="msgIn" placeholder="写句骚话..." onkeypress="if(event.keyCode==13) sendMsg()" style="width:100%; padding:12px; border-radius:12px; border:none; background:#F2F2F7; font-size:0.85rem;">
         </div>
     </div>
 
@@ -115,7 +112,7 @@
             <span style="width: 40px;"></span>
         </div>
         <div class="ins-feed" id="insFeed"></div>
-        <div class="fab" id="mainFab" onclick="openModal('postModal')">+</div>
+        <div class="fab" onclick="openModal('postModal')">+</div>
     </div>
 
     <div class="modal" id="fitModal">
@@ -132,7 +129,7 @@
                     <input type="number" id="fitMin" value="45">
                 </div>
             </div>
-            <button class="btn-main" onclick="saveFit()">保存打卡数据</button>
+            <button class="btn-main" onclick="saveFit()">保存</button>
             <button onclick="closeModals()" style="width:100%; border:none; background:none; color:var(--gray); margin-top:10px;">取消</button>
         </div>
     </div>
@@ -140,33 +137,29 @@
     <div class="modal" id="postModal">
         <div class="modal-content">
             <h3 style="margin-top:0;">发布瞬间</h3>
-            <div style="display:flex; background:#f2f2f7; padding:4px; border-radius:10px; margin-bottom:15px;">
-                <div id="sel-cy" onclick="setRole('cy')" style="flex:1; text-align:center; padding:8px; border-radius:8px; cursor:pointer;" class="role-btn active">林晨羽</div>
-                <div id="sel-sg" onclick="setRole('sg')" style="flex:1; text-align:center; padding:8px; border-radius:8px; cursor:pointer;" class="role-btn">大帅哥</div>
-            </div>
+            <select id="pubRole" style="width:100%; padding:12px; border-radius:12px; border:none; background:#F2F2F7; margin-bottom:15px;">
+                <option value="cy">林晨羽</option><option value="sg">大帅哥</option>
+            </select>
             <input type="file" id="postFile" accept="image/*" style="margin-bottom:15px; font-size:0.8rem;">
-            <textarea id="postText" placeholder="分享此时心情... (选填)" style="width:100%; height:80px; border-radius:12px; border:none; background:#f2f2f7; padding:12px; margin-bottom:15px;"></textarea>
+            <textarea id="postText" placeholder="分享此时心情..." style="width:100%; height:80px; border-radius:12px; border:none; background:#f2f2f7; padding:12px; margin-bottom:15px;"></textarea>
             <button class="btn-main" id="pubBtn" onclick="handlePublish()">立即发布</button>
             <button onclick="closeModals()" style="width:100%; border:none; background:none; color:var(--gray); margin-top:10px;">取消</button>
         </div>
     </div>
 
     <script>
-        const storageKey = 'fit_v18_final';
+        const storageKey = 'fit_v19_final';
         let db = JSON.parse(localStorage.getItem(storageKey)) || { calendar: Array.from({length:12}, () => ({})), messages: [], posts: [] };
-        let curM = new Date().getMonth(), curD = 1, currentRole = 'cy';
+        let curM = new Date().getMonth(), curD = 1;
+
+        // 随机昵称池
+        const nickNames = ["酷炫小猪", "运动小狗", "健身小猫", "懒惰河马", "跑步飞鸟", "举铁袋鼠", "干饭熊猫", "早起海豹"];
+        function getRandomNick() { return nickNames[Math.floor(Math.random() * nickNames.length)]; }
 
         function save() { localStorage.setItem(storageKey, JSON.stringify(db)); }
-        function showToast(t) { const el = document.getElementById('toast'); el.innerText = t; el.style.opacity = 1; setTimeout(()=>el.style.opacity=0, 2000); }
         function toggleSpace(a) { document.body.classList.toggle('space-active', a); if(a) renderFeed(); }
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
-        function setRole(r) { currentRole = r; document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('active', b.id === `sel-${r}`)); }
-
-        // CSS 补全
-        const style = document.createElement('style');
-        style.innerHTML = `.role-btn.active { background:#fff; color:var(--primary); font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1); }`;
-        document.head.appendChild(style);
 
         function initCalendar() {
             const mb = document.getElementById('monthBar'); mb.innerHTML = '';
@@ -199,19 +192,18 @@
             const mode = document.getElementById('fitMode').value;
             const kcal = mode === 'fit' ? (parseFloat(document.getElementById('fitType').value) * 70 * (parseInt(document.getElementById('fitMin').value)/60)) : 0;
             db.calendar[curM][curD] = { mode, kcal };
-            save(); closeModals(); updateUI(); showToast("打卡成功 💪");
+            save(); closeModals(); updateUI();
         }
 
         function handlePublish() {
             const file = document.getElementById('postFile').files[0];
             const text = document.getElementById('postText').value;
-            if(!file) return showToast("请选择照片");
-            const btn = document.getElementById('pubBtn'); btn.innerText = "上传中...";
+            const role = document.getElementById('pubRole').value;
+            if(!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                db.posts.unshift({ id:Date.now(), role:currentRole, img:e.target.result, text:text.trim(), likes:0, comments:[], time:new Date().toLocaleString([], {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}) });
-                save(); btn.innerText = "立即发布"; showToast("发布成功 ✨");
-                setTimeout(() => { closeModals(); renderFeed(); }, 500);
+                db.posts.unshift({ id:Date.now(), role:role, img:e.target.result, text:text.trim(), likes:0, comments:[], time:new Date().toLocaleString([], {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}) });
+                save(); closeModals(); renderFeed();
             };
             reader.readAsDataURL(file);
         }
@@ -222,18 +214,15 @@
                 <div class="ins-post">
                     <div class="post-header">
                         <div class="avatar ${p.role==='cy'?'avatar-cy':'avatar-sg'}">${p.role==='cy'?'晨羽':'帅哥'}</div>
-                        <div style="font-weight:700; font-size:0.85rem;">${p.role==='cy'?'林晨羽':'大帅哥'} <span style="font-weight:400; color:#8e8e93; font-size:0.65rem; margin-left:5px;">${p.time}</span></div>
+                        <div style="font-weight:700; font-size:0.85rem;">${p.role==='cy'?'林晨羽':'大帅哥'}</div>
                     </div>
                     <img src="${p.img}" class="post-img">
                     <div class="post-actions">
                         <span class="action-icon" onclick="like(${p.id})">${p.likes>0?'❤️':'🤍'}</span>
                         <span class="action-icon" onclick="addComment(${p.id})">💬</span>
-                        <span style="font-size:0.8rem; font-weight:700; margin-left:auto;">${p.likes} 次赞</span>
                     </div>
-                    <div style="padding:0 15px 10px; font-size:0.85rem;">
-                        ${p.text ? `<b>${p.role==='cy'?'林晨羽':'大帅哥'}</b> ${p.text}` : ''}
-                    </div>
-                    <div class="comments-box" id="cb-${p.id}">
+                    <div class="comments-box">
+                        ${p.text ? `<div class="comment-item"><b>${p.role==='cy'?'晨羽':'帅哥'}:</b> ${p.text}</div>` : ''}
                         ${(p.comments || []).map(c => `<div class="comment-item"><b>${c.user}:</b> ${c.txt}</div>`).join('')}
                     </div>
                 </div>
@@ -246,14 +235,13 @@
         }
 
         function addComment(id) {
-            const user = prompt("你是谁? (晨羽/帅哥)") || "匿名";
-            const txt = prompt("输入你的评论:");
+            const txt = prompt("想说什么?");
             if(!txt) return;
             db.posts = db.posts.map(p => {
                 if(p.id === id) {
-                    const newComments = p.comments || [];
-                    newComments.push({ user: user==='帅哥'?'大帅哥':'林晨羽', txt });
-                    return {...p, comments: newComments};
+                    const c = p.comments || [];
+                    c.push({ user: getRandomNick(), txt });
+                    return {...p, comments: c};
                 }
                 return p;
             });
@@ -262,8 +250,8 @@
 
         function sendMsg() {
             const i = document.getElementById('msgIn'); if(!i.value) return;
-            const user = prompt("谁在说话? (晨羽/帅哥)") || "访客";
-            db.messages.push(`<b>${user==='帅哥'?'大帅哥':'林晨羽'}</b>: ${i.value}`); if(db.messages.length>20) db.messages.shift();
+            db.messages.push(`<b>${getRandomNick()}</b>: ${i.value}`); 
+            if(db.messages.length>20) db.messages.shift();
             save(); i.value=''; updateUI();
         }
 
